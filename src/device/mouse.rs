@@ -1,10 +1,8 @@
-use anyhow::Result;
-use std::cell::RefCell;
-use std::thread;
-use std::time::Duration;
-use input_linux::{EventKind, InputProperty, Key, KeyState, RelativeAxis};
 use crate::device::device::VirtualDevice;
 use crate::device::position::Position;
+use anyhow::Result;
+use input_linux::{EventKind, InputProperty, Key, KeyState, RelativeAxis};
+use std::cell::RefCell;
 
 pub struct VirtualMouse {
     device: VirtualDevice,
@@ -41,7 +39,7 @@ impl VirtualMouse {
         // Return the virtual mouse device
         Ok(Self {
             device: mouse,
-            current: RefCell::from(Position::new())
+            current: RefCell::from(Position::new()),
         })
     }
 

@@ -1,9 +1,7 @@
-
-use anyhow::{Context, Result};
-use input_linux::{EvdevHandle, Event, EventKind, Key, KeyState};
-use std::fs::File;
 use crate::events::ApplicationEvent;
-
+use anyhow::{Context, Result};
+use input_linux::{EvdevHandle, EventKind, Key, KeyState};
+use std::fs::File;
 
 pub struct InputListener {
     handler: EvdevHandle<File>,
@@ -38,7 +36,7 @@ impl InputListener {
 
         // If the F5 key was pressed
         if event.code == Key::F5 as u16 {
-            return Ok(Some(ApplicationEvent::ToggleMacro))
+            return Ok(Some(ApplicationEvent::ToggleMacro));
         }
 
         // If no
