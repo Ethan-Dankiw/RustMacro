@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use anyhow::Context;
 use std::sync::Mutex;
 use std::thread;
 
@@ -10,7 +10,7 @@ pub struct NamedThread {
 }
 
 impl NamedThread {
-    pub fn new(name: &'static str) -> Result<Self> {
+    pub fn new(name: &'static str) -> anyhow::Result<Self> {
         // Return the named thread object
         Ok(Self {
             name,
@@ -22,7 +22,7 @@ impl NamedThread {
         self.name
     }
 
-    pub fn spawn<F>(&self, task: F) -> Result<()>
+    pub fn spawn<F>(&self, task: F) -> anyhow::Result<()>
     where
         F: FnOnce() -> () + Send + 'static,
         (): Send + 'static,
@@ -43,26 +43,6 @@ impl NamedThread {
         *guard = Some(join_handle);
 
         // Return spawn success
-        Ok(())
-    }
-
-    pub fn stop(&self) -> Result<()> {
-        // Attempt to obtain the lock on the thread join handle
-        let mut guard = self
-            .handle
-            .lock()
-            .map_err(|e| anyhow::anyhow!("Failed to lock thread handle: {}", e))
-            .with_context(|| format!("Failed to stop {} thread", self.name))?;
-
-        // Take the join handle and replace it with None as the thread should be stopped
-        if let Some(handle) = guard.take() {
-            // Attempt to stop join the thread into the parent thread
-            if let Err(e) = handle.join() {
-                anyhow::bail!("Failed to join thread as thread panicked: {:?}", e);
-            }
-        }
-
-        // Return join success
         Ok(())
     }
 }

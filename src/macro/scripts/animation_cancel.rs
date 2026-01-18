@@ -1,6 +1,5 @@
-use crate::r#macro::action::MacroAction;
-use crate::r#macro::generic::{GenericMacro, KeyboardRef, MouseRef};
-use crate::utils::sleep;
+use crate::common::utils::sleep;
+use crate::r#macro::traits::{GenericMacro, KeyboardRef, MacroAction, MouseRef};
 use anyhow::Result;
 use input_linux::Key;
 

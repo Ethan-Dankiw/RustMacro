@@ -1,8 +1,8 @@
-use crate::bus::CommunicationBus;
-use crate::event::parser::parse_input_event;
-use crate::event::types::ApplicationEvent;
+use crate::common::comm_bus::CommunicationBus;
+use crate::common::events::ApplicationEvent;
+use crate::common::thread::NamedThread;
 use crate::input::listener::InputListener;
-use crate::thread::named_thread::NamedThread;
+use crate::input::parser::parse_input_event;
 use anyhow::{Context, Result};
 use std::sync::Arc;
 
@@ -35,15 +35,18 @@ impl InputListenerThread {
     }
 
     pub fn run(&self) -> Result<()> {
-        println!("{} Thread Created!", self.thread.get_name());
-
         // Clone the communication bus and listener so the thread get its own pointer
         let bus = self.bus.clone();
         let listener = self.listener.clone();
 
+        // Get the name of the thread
+        let name = self.thread.get_name();
+
         // Spawn the thread that will listen for inputs
         self.thread
             .spawn(move || {
+                println!("{} Thread Created!", name);
+
                 // Indefinitely listen for inputs from the device listener
                 loop {
                     // Get the next event from the device input listener
@@ -53,7 +56,7 @@ impl InputListenerThread {
                             eprintln!(
                                 "Failed to get next input from the device input listener: {err}"
                             );
-                            continue;
+                            break;
                         }
                     };
 
@@ -72,14 +75,13 @@ impl InputListenerThread {
                         }
                     }
                 }
+
+                // Log that the thread has finished
+                eprintln!("{} Thread Finished!", name);
             })
             .with_context(|| format!("Failed to spawn {} thread", self.thread.get_name()))?;
 
         // Return thread spawn success
         Ok(())
-    }
-
-    pub fn stop(&self) -> Result<()> {
-        self.thread.stop()
     }
 }

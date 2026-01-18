@@ -1,10 +1,9 @@
-use crate::device::keyboard::VirtualKeyboard;
-use crate::device::mouse::VirtualMouse;
-use crate::r#macro::action::MacroAction;
-use crate::r#macro::generic::{GenericMacro, KeyboardRef, MouseRef};
+use crate::engine::workers::infinite::InfiniteMacroThread;
+use crate::engine::workers::oneshot::OneshotMacroThread;
+use crate::r#macro::traits::{KeyboardRef, MacroAction, MouseRef};
 use crate::r#macro::Macro;
-use crate::thread::infinite_macro::InfiniteMacroThread;
-use crate::thread::oneshot_macro::OneshotMacroThread;
+use crate::r#virtual::keyboard::VirtualKeyboard;
+use crate::r#virtual::mouse::VirtualMouse;
 use anyhow::Result;
 use std::sync::{Arc, Mutex};
 
@@ -14,8 +13,8 @@ pub struct MacroEngine {
     infinite_thread: InfiniteMacroThread,
 
     // Stored virtual keyboard and mouse
-    keyboard: KeyboardRef,
-    mouse: MouseRef,
+    _keyboard: KeyboardRef,
+    _mouse: MouseRef,
 }
 
 impl MacroEngine {
@@ -35,8 +34,8 @@ impl MacroEngine {
         Ok(Self {
             oneshot_thread,
             infinite_thread,
-            keyboard,
-            mouse,
+            _keyboard: keyboard,
+            _mouse: mouse,
         })
     }
 
@@ -45,30 +44,6 @@ impl MacroEngine {
         match task.action_type() {
             MacroAction::ONCE => self.oneshot_thread.execute(task)?,
             MacroAction::INFINITE => self.infinite_thread.execute(task)?,
-        }
-
-        Ok(())
-    }
-
-    pub fn stop(&self) -> Result<()> {
-        // Count the number of threads that have not stopped when they should have
-        let mut error_count: u8 = 0;
-
-        // Attempt to stop the oneshot macro thread
-        if let Err(e) = self.oneshot_thread.stop() {
-            eprintln!("Failed to stop the oneshot macro thread: {}", e);
-            error_count += 1;
-        }
-
-        // Attempt to stop the infinite macro thread
-        if let Err(e) = self.infinite_thread.stop() {
-            eprintln!("Failed to stop the infinite macro thread: {}", e);
-            error_count += 1;
-        }
-
-        // If more than one thread failed to stop
-        if error_count > 0 {
-            anyhow::bail!("Macro thread stopped");
         }
 
         Ok(())

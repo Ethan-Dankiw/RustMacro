@@ -1,4 +1,4 @@
-use crate::device::uinput::{open_uinput, InputHandler};
+use crate::r#virtual::uinput::{open_uinput, InputHandler};
 use anyhow::Result;
 use input_linux::sys::input_event;
 use input_linux::{EventKind, InputEvent, InputId, InputProperty, Key, KeyState, RelativeAxis};

@@ -1,7 +1,7 @@
-use crate::bus::CommunicationBus;
-use crate::r#macro::generic::{GenericMacro, KeyboardRef, MouseRef};
+use crate::common::comm_bus::CommunicationBus;
+use crate::common::thread::NamedThread;
+use crate::r#macro::traits::{KeyboardRef, MouseRef};
 use crate::r#macro::Macro;
-use crate::thread::named_thread::NamedThread;
 use anyhow::Result;
 use std::sync::Arc;
 
@@ -23,13 +23,16 @@ impl OneshotMacroThread {
     }
 
     pub fn run(&self, keyboard: KeyboardRef, mouse: MouseRef) -> Result<()> {
-        println!("{} Thread Created!", self.thread.get_name());
-
         // Clone the communication bus so the thread get its own pointer
         let bus = self.bus.clone();
 
+        // Get the name of the thread
+        let name = self.thread.get_name();
+
         // Spawn the thread that executes oneshot macros
         self.thread.spawn(move || {
+            println!("{} Thread Created!", name);
+
             // Indefinitely receive macros to execute
             loop {
                 // Receive a macro to execute
@@ -37,7 +40,7 @@ impl OneshotMacroThread {
                     Ok(task) => task,
                     Err(err) => {
                         eprintln!("Failed to receive oneshot macro to execute: {}", err);
-                        continue;
+                        break;
                     }
                 };
 
@@ -51,6 +54,9 @@ impl OneshotMacroThread {
                     eprintln!("Failed to execute macro: {}", e);
                 }
             }
+
+            // Log that the thread has finished
+            eprintln!("{} Thread Finished!", name);
         })?;
 
         // Return thread spawn success
@@ -60,10 +66,5 @@ impl OneshotMacroThread {
     pub fn execute(&self, task: Macro) -> Result<()> {
         // Send the task to the oneshot macro thread for execution
         self.bus.send_data(task)
-    }
-
-    pub fn stop(&self) -> Result<()> {
-        // Attempt to join the spawned thread back to its parent
-        self.thread.stop()
     }
 }

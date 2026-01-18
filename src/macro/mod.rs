@@ -1,11 +1,8 @@
-use crate::r#macro::generic::GenericMacro;
+use crate::r#macro::traits::GenericMacro;
 use std::sync::Arc;
 
-pub mod action;
-pub mod animation_cancel;
-pub mod engine;
-pub mod generic;
 pub mod registry;
-pub mod skull_caverns;
+pub mod scripts;
+pub mod traits;
 
 pub type Macro = Arc<dyn GenericMacro>;

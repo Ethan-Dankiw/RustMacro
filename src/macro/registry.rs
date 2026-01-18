@@ -1,4 +1,3 @@
-use crate::r#macro::generic::GenericMacro;
 use crate::r#macro::Macro;
 use input_linux::Key;
 use std::collections::HashMap;

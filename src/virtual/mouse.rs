@@ -1,5 +1,5 @@
-use crate::device::device::VirtualDevice;
-use crate::utils::sleep;
+use crate::common::utils::sleep;
+use crate::r#virtual::device::VirtualDevice;
 use anyhow::Result;
 use input_linux::{EventKind, InputProperty, Key, KeyState, RelativeAxis};
 

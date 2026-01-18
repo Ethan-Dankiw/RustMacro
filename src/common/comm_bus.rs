@@ -47,8 +47,7 @@ impl<T> CommunicationBus<T> {
             .with_context(|| "Receiver mutex has been poisoned")?;
 
         // Attempt to receive data from the channel (this is blocking)
-        let data = receiver
-            .recv()
+        let data = receiver.recv()
             .map_err(|err| anyhow::anyhow!("Failed to receive data: {}", err))
             .with_context(|| "Sender channel has disconnected")?;
 
@@ -58,9 +57,7 @@ impl<T> CommunicationBus<T> {
 
     pub fn try_receive_data(&self) -> Result<Option<T>> {
         // Attempt to lock the receiver channel
-        let receiver = self
-            .receiver
-            .lock()
+        let receiver = self.receiver.lock()
             .map_err(|err| anyhow::anyhow!("Failed to acquire lock on receiver: {}", err))
             .with_context(|| "Receiver mutex has been poisoned")?;
 

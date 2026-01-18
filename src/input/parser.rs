@@ -1,4 +1,4 @@
-use crate::event::types::ApplicationEvent;
+use crate::common::events::ApplicationEvent;
 use input_linux::{EventKind, InputEvent, Key, KeyState};
 
 pub fn parse_input_event(event: InputEvent) -> Option<ApplicationEvent> {
