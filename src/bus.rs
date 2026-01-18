@@ -22,12 +22,15 @@ impl<T> CommunicationBus<T> {
 
     pub fn send_data(&self, data: T) -> Result<()> {
         // Attempt to lock the sender channel
-        let sender = self.sender.lock()
+        let sender = self
+            .sender
+            .lock()
             .map_err(|err| anyhow::anyhow!("Failed to acquire lock on sender: {}", err))
             .with_context(|| "Sender mutex has been poisoned")?;
 
         // Attempt to send the data along the sender channel
-        sender.send(data)
+        sender
+            .send(data)
             .map_err(|err| anyhow::anyhow!("Failed to send data: {}", err))
             .with_context(|| "Receiver channel has disconnected")?;
 
@@ -37,12 +40,15 @@ impl<T> CommunicationBus<T> {
 
     pub fn receive_data(&self) -> Result<T> {
         // Attempt to lock the receiver channel
-        let receiver = self.receiver.lock()
+        let receiver = self
+            .receiver
+            .lock()
             .map_err(|err| anyhow::anyhow!("Failed to acquire lock on receiver: {}", err))
             .with_context(|| "Receiver mutex has been poisoned")?;
 
         // Attempt to receive data from the channel (this is blocking)
-        let data = receiver.recv()
+        let data = receiver
+            .recv()
             .map_err(|err| anyhow::anyhow!("Failed to receive data: {}", err))
             .with_context(|| "Sender channel has disconnected")?;
 
@@ -52,7 +58,9 @@ impl<T> CommunicationBus<T> {
 
     pub fn try_receive_data(&self) -> Result<Option<T>> {
         // Attempt to lock the receiver channel
-        let receiver = self.receiver.lock()
+        let receiver = self
+            .receiver
+            .lock()
             .map_err(|err| anyhow::anyhow!("Failed to acquire lock on receiver: {}", err))
             .with_context(|| "Receiver mutex has been poisoned")?;
 

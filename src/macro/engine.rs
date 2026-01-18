@@ -1,12 +1,12 @@
-use std::sync::{Arc, Mutex};
-use crate::r#macro::generic::{GenericMacro, KeyboardRef, MouseRef};
-use anyhow::Result;
 use crate::device::keyboard::VirtualKeyboard;
 use crate::device::mouse::VirtualMouse;
 use crate::r#macro::action::MacroAction;
+use crate::r#macro::generic::{GenericMacro, KeyboardRef, MouseRef};
 use crate::r#macro::Macro;
 use crate::thread::infinite_macro::InfiniteMacroThread;
 use crate::thread::oneshot_macro::OneshotMacroThread;
+use anyhow::Result;
+use std::sync::{Arc, Mutex};
 
 pub struct MacroEngine {
     // Stored threads
@@ -43,12 +43,8 @@ impl MacroEngine {
     pub fn execute_macro(&self, task: Macro) -> Result<()> {
         // Execute the macro on the correct thread
         match task.action_type() {
-            MacroAction::ONCE => {
-                self.oneshot_thread.execute(task)?
-            },
-            MacroAction::INFINITE => {
-                self.infinite_thread.execute(task)?
-            }
+            MacroAction::ONCE => self.oneshot_thread.execute(task)?,
+            MacroAction::INFINITE => self.infinite_thread.execute(task)?,
         }
 
         Ok(())

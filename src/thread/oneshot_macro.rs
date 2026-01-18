@@ -5,7 +5,6 @@ use crate::thread::named_thread::NamedThread;
 use anyhow::Result;
 use std::sync::Arc;
 
-
 pub struct OneshotMacroThread {
     thread: NamedThread,
     bus: Arc<CommunicationBus<Macro>>,
@@ -20,18 +19,15 @@ impl OneshotMacroThread {
         let thread = NamedThread::new("OneshotMacro")?;
 
         // Return the created thread
-        Ok(Self {
-            thread,
-            bus,
-        })
+        Ok(Self { thread, bus })
     }
 
     pub fn run(&self, keyboard: KeyboardRef, mouse: MouseRef) -> Result<()> {
         println!("{} Thread Created!", self.thread.get_name());
-        
+
         // Clone the communication bus so the thread get its own pointer
         let bus = self.bus.clone();
-        
+
         // Spawn the thread that executes oneshot macros
         self.thread.spawn(move || {
             // Indefinitely receive macros to execute

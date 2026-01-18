@@ -36,40 +36,44 @@ impl InputListenerThread {
 
     pub fn run(&self) -> Result<()> {
         println!("{} Thread Created!", self.thread.get_name());
-        
+
         // Clone the communication bus and listener so the thread get its own pointer
         let bus = self.bus.clone();
         let listener = self.listener.clone();
-        
+
         // Spawn the thread that will listen for inputs
-        self.thread.spawn(move || {
-            // Indefinitely listen for inputs from the device listener
-            loop {
-                // Get the next event from the device input listener
-                let input = match listener.next_event() {
-                    Ok(input) => input,
-                    Err(err) => {
-                        eprintln!("Failed to get next input from the device input listener: {err}");
-                        continue;
-                    }
-                };
+        self.thread
+            .spawn(move || {
+                // Indefinitely listen for inputs from the device listener
+                loop {
+                    // Get the next event from the device input listener
+                    let input = match listener.next_event() {
+                        Ok(input) => input,
+                        Err(err) => {
+                            eprintln!(
+                                "Failed to get next input from the device input listener: {err}"
+                            );
+                            continue;
+                        }
+                    };
 
-                // Process the event to prevent unwanted events from causing IPC overhead
-                let event = match parse_input_event(input) {
-                    Some(event) => event,
-                    None => continue,
-                };
+                    // Process the event to prevent unwanted events from causing IPC overhead
+                    let event = match parse_input_event(input) {
+                        Some(event) => event,
+                        None => continue,
+                    };
 
-                // Send the input event to the main thread for event processing and handling
-                match bus.send_data(event) {
-                    Ok(_) => (),
-                    Err(err) => {
-                        eprintln!("Failed to send event: {err}");
-                        continue;
+                    // Send the input event to the main thread for event processing and handling
+                    match bus.send_data(event) {
+                        Ok(_) => (),
+                        Err(err) => {
+                            eprintln!("Failed to send event: {err}");
+                            continue;
+                        }
                     }
                 }
-            }
-        }).with_context(|| format!("Failed to spawn {} thread", self.thread.get_name()))?;
+            })
+            .with_context(|| format!("Failed to spawn {} thread", self.thread.get_name()))?;
 
         // Return thread spawn success
         Ok(())

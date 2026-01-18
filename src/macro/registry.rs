@@ -11,7 +11,7 @@ impl MacroRegistry {
     pub fn new() -> Self {
         // Create a registry hashmap to store all the known macros
         Self {
-            registry: HashMap::new()
+            registry: HashMap::new(),
         }
     }
 

@@ -1,5 +1,5 @@
-use input_linux::{EventKind, InputEvent, Key, KeyState};
 use crate::event::types::ApplicationEvent;
+use input_linux::{EventKind, InputEvent, Key, KeyState};
 
 pub fn parse_input_event(event: InputEvent) -> Option<ApplicationEvent> {
     // Filter out events that are not key presses

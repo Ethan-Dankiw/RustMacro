@@ -1,8 +1,8 @@
-use std::io;
-use anyhow::Result;
-use input_linux::{EventKind, InputEvent, InputId, InputProperty, Key, KeyState, RelativeAxis};
-use input_linux::sys::input_event;
 use crate::device::uinput::{open_uinput, InputHandler};
+use anyhow::Result;
+use input_linux::sys::input_event;
+use input_linux::{EventKind, InputEvent, InputId, InputProperty, Key, KeyState, RelativeAxis};
+use std::io;
 
 pub struct VirtualDevice {
     identifier: InputId,
@@ -23,7 +23,10 @@ impl VirtualDevice {
         };
 
         // Return the virtual device
-        Ok(Self { identifier: id, handler: device })
+        Ok(Self {
+            identifier: id,
+            handler: device,
+        })
     }
 
     pub fn create(&self, name: &str) -> Result<()> {
@@ -35,12 +38,7 @@ impl VirtualDevice {
         bytes.push(0);
 
         // Create the device
-        self.handler.create(
-            &self.identifier,
-            &bytes,
-            0,
-            &[],
-        )?;
+        self.handler.create(&self.identifier, &bytes, 0, &[])?;
 
         // Return a successful creation
         Ok(())

@@ -1,7 +1,7 @@
-use std::fs::OpenOptions;
-use std::os::fd::OwnedFd;
 use anyhow::Result;
 use input_linux::UInputHandle;
+use std::fs::OpenOptions;
+use std::os::fd::OwnedFd;
 
 pub type InputHandler = UInputHandle<OwnedFd>;
 

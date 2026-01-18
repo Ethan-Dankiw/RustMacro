@@ -1,3 +1,4 @@
+pub mod bus;
 mod device;
 mod engine;
 mod event;
@@ -5,17 +6,16 @@ mod input;
 mod r#macro;
 mod thread;
 mod utils;
-pub mod bus;
 
-use std::sync::Arc;
-use crate::thread::input_listener::InputListenerThread;
-use anyhow::Result;
 use crate::bus::CommunicationBus;
 use crate::event::types::ApplicationEvent;
 use crate::r#macro::animation_cancel::AnimationCancelMacro;
 use crate::r#macro::engine::MacroEngine;
 use crate::r#macro::registry::MacroRegistry;
 use crate::r#macro::skull_caverns::SkullCavernsMacro;
+use crate::thread::input_listener::InputListenerThread;
+use anyhow::Result;
+use std::sync::Arc;
 
 fn main() -> Result<()> {
     // Create a shared communication channel between all the input listeners to send their inputs to the main thread
@@ -29,11 +29,16 @@ fn main() -> Result<()> {
     // Register the macros
     registry.register(Arc::new(AnimationCancelMacro));
     registry.register(Arc::new(SkullCavernsMacro));
-    println!("{} Macro's Registered Successfully!", registry.get_register_count());
-    
+    println!(
+        "{} Macro's Registered Successfully!",
+        registry.get_register_count()
+    );
+
     // Create an input listener thread for the physical mouse and keyboard
-    let mouse_listener = InputListenerThread::new("MouseListener", "/dev/input/event3", bus.clone())?;
-    let keyboard_listener = InputListenerThread::new("KeyboardListener", "/dev/input/event5", bus.clone())?;
+    let mouse_listener =
+        InputListenerThread::new("MouseListener", "/dev/input/event3", bus.clone())?;
+    let keyboard_listener =
+        InputListenerThread::new("KeyboardListener", "/dev/input/event5", bus.clone())?;
     println!("Creating Listener Threads...");
 
     // Run the input listening threads
@@ -48,7 +53,10 @@ fn main() -> Result<()> {
         let event = match bus.receive_data() {
             Ok(event) => event,
             Err(err) => {
-                eprintln!("Failed to receive data from the shared communication bus: {}", err);
+                eprintln!(
+                    "Failed to receive data from the shared communication bus: {}",
+                    err
+                );
                 continue;
             }
         };
@@ -59,12 +67,12 @@ fn main() -> Result<()> {
             ApplicationEvent::QuitApp => {
                 println!("Quitting...");
                 break;
-            },
+            }
             // If the input event is for a key press, check if that key maps to a macro trigger
             ApplicationEvent::KeyPress(key) => match registry.get_macro_by_trigger(key) {
                 Some(found_macro) => found_macro,
                 None => continue,
-            }
+            },
         };
 
         // Use the macro engine to execute the macro
@@ -72,7 +80,6 @@ fn main() -> Result<()> {
             eprintln!("Failed to execute macro: {}", e);
         }
     }
-
 
     // // Create an input listener for the physical mouse
     // let mouse = InputListener::new("/dev/input/event3")?;

@@ -33,7 +33,9 @@ impl NamedThread {
             .spawn(task)?;
 
         // Attempt to obtain the lock on the thread join handle
-        let mut guard = self.handle.lock()
+        let mut guard = self
+            .handle
+            .lock()
             .map_err(|e| anyhow::anyhow!("Failed to lock thread handle: {}", e))
             .with_context(|| format!("Failed to store join handle for the {} thread", self.name))?;
 
@@ -46,7 +48,9 @@ impl NamedThread {
 
     pub fn stop(&self) -> Result<()> {
         // Attempt to obtain the lock on the thread join handle
-        let mut guard = self.handle.lock()
+        let mut guard = self
+            .handle
+            .lock()
             .map_err(|e| anyhow::anyhow!("Failed to lock thread handle: {}", e))
             .with_context(|| format!("Failed to stop {} thread", self.name))?;
 

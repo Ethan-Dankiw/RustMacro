@@ -1,4 +1,4 @@
 pub enum MacroAction {
     ONCE,
-    INFINITE
+    INFINITE,
 }

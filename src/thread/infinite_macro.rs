@@ -74,7 +74,7 @@ impl InfiniteMacroThread {
 
                             // Continue with the execution of the new task
                             continue;
-                        },
+                        }
 
                         // If there are no new messages, continue execution
                         Ok(None) => continue,
@@ -83,7 +83,7 @@ impl InfiniteMacroThread {
                         Err(e) => {
                             eprintln!("Failed to receive infinite macro to execute: {}", e);
                             return;
-                        },
+                        }
                     }
                 }
             }
