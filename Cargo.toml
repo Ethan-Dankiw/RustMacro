@@ -1,5 +1,5 @@
 [package]
-name = "RustMacroHotKey"
+name = "RustMacro"
 version = "1.0.0"
 authors = ["Ethan Dankiw"]
 rust-version = "1.91.1"
