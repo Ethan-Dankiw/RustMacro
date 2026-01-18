@@ -1,15 +1,14 @@
 use crate::device::device::VirtualDevice;
+use crate::utils::sleep;
 use anyhow::Result;
 use input_linux::{EventKind, Key, KeyState};
-use std::thread;
-use std::time::Duration;
 
 pub struct VirtualKeyboard {
     device: VirtualDevice,
 }
 
 impl VirtualKeyboard {
-    pub fn new() -> Result<Self> {
+    pub fn new(name: &'static str) -> Result<Self> {
         // Create a virtual keyboard device
         let keyboard = VirtualDevice::new()?;
 
@@ -20,13 +19,17 @@ impl VirtualKeyboard {
         keyboard.enable_key_press(Key::Delete)?;
         keyboard.enable_key_press(Key::RightShift)?;
         keyboard.enable_key_press(Key::R)?;
+        keyboard.enable_key_press(Key::W)?;
+        keyboard.enable_key_press(Key::A)?;
+        keyboard.enable_key_press(Key::S)?;
+        keyboard.enable_key_press(Key::D)?;
 
         // Enable the macro toggle keybind
         keyboard.enable_key_press(Key::F5)?;
         keyboard.enable_key_press(Key::F6)?;
 
         // Create the virtual keyboard
-        keyboard.create("animation-cancel-virtual-keyboard")?;
+        keyboard.create(name)?;
 
         // Return the virtual keyboard device
         Ok(Self { device: keyboard })
@@ -37,7 +40,7 @@ impl VirtualKeyboard {
         self.key_down(key)?;
 
         // Wait to described delay in ms
-        thread::sleep(Duration::from_millis(duration_ms));
+        sleep(duration_ms);
 
         // Send the key up event
         self.key_release(key)?;

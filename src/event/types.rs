@@ -1,6 +1,7 @@
+use input_linux::Key;
+
 #[derive(Debug, Clone)]
 pub enum ApplicationEvent {
-    ToggleMacro,
+    KeyPress(Key),
     QuitApp,
-    ReloadConfig
 }

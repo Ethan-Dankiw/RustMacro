@@ -1,16 +1,14 @@
 use crate::device::device::VirtualDevice;
-use crate::device::position::Position;
+use crate::utils::sleep;
 use anyhow::Result;
 use input_linux::{EventKind, InputProperty, Key, KeyState, RelativeAxis};
-use std::cell::RefCell;
 
 pub struct VirtualMouse {
     device: VirtualDevice,
-    current: RefCell<Position>,
 }
 
 impl VirtualMouse {
-    pub fn new() -> Result<Self> {
+    pub fn new(name: &'static str) -> Result<Self> {
         // Create a virtual mouse device
         let mouse = VirtualDevice::new()?;
 
@@ -34,17 +32,22 @@ impl VirtualMouse {
         mouse.enable_mouse_axis(RelativeAxis::Wheel)?;
 
         // Create the virtual mouse
-        mouse.create("animation-cancel-virtual-mouse")?;
+        mouse.create(name)?;
 
         // Return the virtual mouse device
-        Ok(Self {
-            device: mouse,
-            current: RefCell::from(Position::new()),
-        })
+        Ok(Self { device: mouse })
     }
 
-    pub fn reset_position(&self) {
-        self.current.borrow_mut().move_to(0, 0);
+    pub fn click_tap(&self, key: Key) -> Result<()> {
+        // Send the click down event
+        self.click_down(key)?;
+
+        // Wait to described delay in ms
+        sleep(50);
+
+        // Send the click up event
+        self.click_release(key)?;
+        Ok(())
     }
 
     pub fn click_down(&self, key: Key) -> Result<()> {
@@ -63,7 +66,6 @@ impl VirtualMouse {
 
     pub fn move_up(&self, delta_px: i32) -> Result<()> {
         // Move the mouse's relative X-axis some pixels to the left
-        self.current.borrow_mut().move_y(-delta_px);
         self.device.send_relative(RelativeAxis::Y, -delta_px)?;
         self.device.flush_events()?;
         Ok(())
@@ -71,7 +73,6 @@ impl VirtualMouse {
 
     pub fn move_down(&self, delta_px: i32) -> Result<()> {
         // Move the mouse's relative X-axis some pixels to the left
-        self.current.borrow_mut().move_y(delta_px);
         self.device.send_relative(RelativeAxis::Y, delta_px)?;
         self.device.flush_events()?;
         Ok(())
@@ -79,7 +80,6 @@ impl VirtualMouse {
 
     pub fn move_left(&self, delta_px: i32) -> Result<()> {
         // Move the mouse's relative X-axis some pixels to the left
-        self.current.borrow_mut().move_x(-delta_px);
         self.device.send_relative(RelativeAxis::X, -delta_px)?;
         self.device.flush_events()?;
         Ok(())
@@ -87,7 +87,6 @@ impl VirtualMouse {
 
     pub fn move_right(&self, delta_px: i32) -> Result<()> {
         // Move the mouse's relative X-axis some pixels to the left
-        self.current.borrow_mut().move_x(delta_px);
         self.device.send_relative(RelativeAxis::X, delta_px)?;
         self.device.flush_events()?;
         Ok(())

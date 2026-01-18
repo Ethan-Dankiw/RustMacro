@@ -1,6 +1,5 @@
-use crate::events::ApplicationEvent;
 use anyhow::{Context, Result};
-use input_linux::{EvdevHandle, EventKind, Key, KeyState};
+use input_linux::{EvdevHandle, InputEvent};
 use std::fs::File;
 
 pub struct InputListener {
@@ -19,27 +18,11 @@ impl InputListener {
         })
     }
 
-    pub fn next_event(&self) -> Result<Option<ApplicationEvent>> {
+    pub fn next_event(&self) -> Result<InputEvent> {
         // Get the next event from the event handler
-        let event = match self.handler.read_event() {
-            Ok(event) => event.into_event(),
-            Err(err) => {
-                eprintln!("Failed to read input event: {err}");
-                return Ok(None);
-            }
-        };
-
-        // Filter out events that are not key presses
-        if event.kind != EventKind::Key || event.value != KeyState::PRESSED.into() {
-            return Ok(None);
-        }
-
-        // If the F5 key was pressed
-        if event.code == Key::F5 as u16 {
-            return Ok(Some(ApplicationEvent::ToggleMacro));
-        }
-
-        // If no
-        Ok(None)
+        self.handler
+            .read_event()
+            .map(InputEvent::from)
+            .map_err(|e| anyhow::anyhow!("Failed to read input: {}", e))
     }
 }
