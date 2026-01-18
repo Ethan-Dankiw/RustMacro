@@ -1,6 +1,9 @@
 [package]
-name = "AnimationCancel"
-version = "0.1.0"
+name = "RustMacroHotKey"
+version = "1.0.0"
+authors = ["Ethan Dankiw"]
+rust-version = "1.91.1"
+description = "A Rust base auto hotkey application that allows macros to be programmed and executed"
 edition = "2024"
 
 [dependencies]

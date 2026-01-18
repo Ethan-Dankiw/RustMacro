@@ -1,3 +1,5 @@
+#![deny(warnings)]
+
 mod r#virtual;
 mod input;
 mod r#macro;
