@@ -7,18 +7,18 @@ mod common;
 mod engine;
 mod config;
 
+use crate::config::Config;
 use crate::engine::engine::MacroEngine;
 use crate::r#macro::registry::MacroRegistry;
 use crate::r#macro::scripts::animation_cancel::AnimationCancelMacro;
+use crate::r#macro::scripts::gamble_coins::GambleCoinsMacro;
 use crate::r#macro::scripts::skull_caverns::SkullCavernsMacro;
 use crate::r#macro::scripts::tree_break::BreakTreeMacro;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use common::comm_bus::CommunicationBus;
 use common::events::ApplicationEvent;
 use input::monitor::InputListenerThread;
 use std::sync::Arc;
-use crate::config::Config;
-use crate::r#macro::scripts::gamble_coins::GambleCoinsMacro;
 
 fn main() -> Result<()> {
     // Load the config from disk
@@ -30,30 +30,37 @@ fn main() -> Result<()> {
     println!(" - Keyboard Input: {}\n", config.keyboard_input);
 
     // Create a shared communication channel between all the input listeners to send their inputs to the main thread
+    println!("Attempting to initialize Shared Communication Bus between threads...");
     let shared_bus = Arc::new(CommunicationBus::<ApplicationEvent>::new());
-    println!("Shared Communication Bus Initialised!");
+    println!("Shared Communication Bus Initialized!\n");
 
     // Register the shutdown hook to close the application gracefully
+    println!("Attempting to register shutdown hook...");
     match register_shutdown_hook(&shared_bus) {
-        Ok(_) => {},
+        Ok(_) => println!("Shutdown hook registered successfully!\n"),
         Err(e) => {
-            eprintln!("Error registering shutdown hook: {}", e);
+            eprintln!("Error registering shutdown hook: {}\n", e);
         }
     }
 
     // Create a macro registry and load macros into it
+    println!("Attempting to create and load Macro Registry...");
     let macro_registry = create_and_load_macro_registry();
+    println!("Macro Registry loaded successfully!\n");
 
     // Start the input listeners thread that receive inputs from the physical mouse and keyboard
-    match start_input_listeners(&shared_bus) {
-        Ok(_) => {},
+    println!("Attempting to start input listener threads...");
+    match start_input_listeners(&shared_bus, &config) {
+        Ok(_) => println!("Input listener threads started successfully!\n"),
         Err(e) => {
             anyhow::bail!("Failed to start the input listener threads: {}", e);
         }
     }
 
     // Start the macro engine
+    println!("Attempting to start Macro Engine...");
     let engine = MacroEngine::new()?;
+    println!("Macro Engine started successfully!\n");
 
     loop {
         // Receive data from the shared communicated bus
@@ -92,27 +99,29 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn start_input_listeners(shared_bus: &Arc<CommunicationBus<ApplicationEvent>>) -> Result<()> {
-    // Create the listener thread for the physical keyboard
-    let keyboard_listener = InputListenerThread::new(
-        "KeyboardListener",
-        "/dev/input/event5",
-        shared_bus.clone(),
-    ).expect("Failed to create keyboard listener");
+fn start_input_listeners(
+    shared_bus: &Arc<CommunicationBus<ApplicationEvent>>,
+    config: &Config,
+) -> Result<()> {
+    // Define the listeners that are being created, with the name of the thread and config value
+    let listeners = [
+        ("KeyboardListener", &config.keyboard_input),
+        ("MouseListener", &config.mouse_input),
+    ];
 
-    // Start the listener to receive keyboard input events
-    keyboard_listener.run()?;
+    // Loop over all the listeners being created
+    for (name, event_file) in listeners {
+        // Construct a device path from the event file
+        let device_path = format!("/dev/input/{}", event_file);
 
-    // Create the listener thread for the physical mouse
-    let mouse_listener = InputListenerThread::new(
-        "MouseListener",
-        "/dev/input/event3",
-        shared_bus.clone(),
-    ).expect("Failed to create mouse listener");
-    println!("Creating Listener Threads");
-
-    // Start the listener to receive mouse input events
-    mouse_listener.run()?;
+        // Create and run the device listener thread
+        InputListenerThread::new(
+            name,
+            device_path.as_str(),
+            shared_bus.clone(),
+        ).with_context(|| format!("Failed to create {} for {}", name, device_path))?
+            .run()?;
+    }
     Ok(())
 }
 
@@ -143,7 +152,6 @@ fn register_shutdown_hook(shared_bus: &Arc<CommunicationBus<ApplicationEvent>>) 
 fn create_and_load_macro_registry() -> MacroRegistry {
     // Create the macro register so that input events can be mapped to macro execution
     let mut macro_registry = MacroRegistry::new();
-    println!("Macro Registry Created!");
 
     // Register the macros
     macro_registry.register(Arc::new(AnimationCancelMacro));

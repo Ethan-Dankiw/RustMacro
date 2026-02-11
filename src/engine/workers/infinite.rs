@@ -30,6 +30,7 @@ impl InfiniteMacroThread {
         let name = self.thread.get_name();
 
         // Spawn the thread that executes oneshot macros
+        println!("Attempting to create {} thread", name);
         self.thread.spawn(move || {
             println!("{} Thread Created!", name);
 

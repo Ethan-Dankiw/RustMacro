@@ -17,7 +17,7 @@ pub struct InputListenerThread {
 impl InputListenerThread {
     pub fn new(
         name: &'static str,
-        device_path: &'static str,
+        device_path: &str,
         bus: Arc<CommunicationBus<Data>>,
     ) -> Result<Self> {
         // Create a new input listener
@@ -43,6 +43,7 @@ impl InputListenerThread {
         let name = self.thread.get_name();
 
         // Spawn the thread that will listen for inputs
+        println!("Attempting to create {} thread", name);
         self.thread
             .spawn(move || {
                 println!("{} Thread Created!", name);

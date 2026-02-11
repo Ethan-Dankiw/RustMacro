@@ -44,6 +44,10 @@ lrwxrwxrwx 1 root root  9 Feb  9 13:16 usb-ROYUAN_EPOMAKER_TH80_Pro-XXXX-event-m
 lrwxrwxrwx 1 root root  9 Feb  9 13:16 usb-Swiftpoint_Limited_Z_2_XXXXXXXXX-event-mouse -> ../event9
 ```
 
+IMPORTANT NOTE: If you are using your mouse to detected key presses, e.g. F1 to F24 to activate a macro. 
+Then you MUST use the event value for your mouse, but the keyboard entry. 
+See the section on getting the input event value for a keyboard.
+
 Since I know that `usb-Swiftpoint_Limited_Z_2_XXXXXXXXX-event-mouse` is my mouse, I know that when prompted,
 I would enter `event9` as the value for mouse input.
 
@@ -64,7 +68,10 @@ lrwxrwxrwx 1 root root 10 Feb  9 13:16 usb-Swiftpoint_Limited_Z_2_XXXXXXXXX-XXXX
 ```
 
 Since I know that `usb-ROYUAN_EPOMAKER_TH80_Pro-event-kbd` is my keyboard, I know that when prompted,
-I would enter `event2` as the value for mouse input.
+I would enter `event2` as the value for keyboard input.
+
+Since I know that `usb-Swiftpoint_Limited_Z_2_XXXXXXXXX-XXXX-event-kbd` is my mouse, If I want to detect key presses on my mouse.
+I know that when prompted, I would enter `event10` as the value for MOUSE input.
 
 ## What creating a new config file should look like
 
