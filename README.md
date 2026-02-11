@@ -48,8 +48,9 @@ IMPORTANT NOTE: If you are using your mouse to detected key presses, e.g. F1 to 
 Then you MUST use the event value for your mouse, but the keyboard entry. 
 See the section on getting the input event value for a keyboard.
 
-Since I know that `usb-Swiftpoint_Limited_Z_2_XXXXXXXXX-event-mouse` is my mouse, I know that when prompted,
-I would enter `event9` as the value for mouse input.
+
+Otherwise, since I know that `usb-Swiftpoint_Limited_Z_2_XXXXXXXXX-event-mouse` is my mouse, and I want to detect mouse clicks e.g. Left Click or mouse movement.
+I know that when prompted, I would enter `event9` as the value for mouse input.
 
 ### Getting the input event value for the keyboard
 
