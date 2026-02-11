@@ -5,18 +5,30 @@ mod input;
 mod r#macro;
 mod common;
 mod engine;
+mod config;
 
 use crate::engine::engine::MacroEngine;
 use crate::r#macro::registry::MacroRegistry;
 use crate::r#macro::scripts::animation_cancel::AnimationCancelMacro;
 use crate::r#macro::scripts::skull_caverns::SkullCavernsMacro;
+use crate::r#macro::scripts::tree_break::BreakTreeMacro;
 use anyhow::Result;
 use common::comm_bus::CommunicationBus;
 use common::events::ApplicationEvent;
 use input::monitor::InputListenerThread;
 use std::sync::Arc;
+use crate::config::Config;
+use crate::r#macro::scripts::gamble_coins::GambleCoinsMacro;
 
 fn main() -> Result<()> {
+    // Load the config from disk
+    let config = Arc::new(Config::new()?);
+
+    // Print the mouse and keyboard values
+    println!("Detected Config Entries:");
+    println!(" - Mouse Input: {}", config.mouse_input);
+    println!(" - Keyboard Input: {}\n", config.keyboard_input);
+
     // Create a shared communication channel between all the input listeners to send their inputs to the main thread
     let shared_bus = Arc::new(CommunicationBus::<ApplicationEvent>::new());
     println!("Shared Communication Bus Initialised!");
@@ -135,8 +147,9 @@ fn create_and_load_macro_registry() -> MacroRegistry {
 
     // Register the macros
     macro_registry.register(Arc::new(AnimationCancelMacro));
+    macro_registry.register(Arc::new(BreakTreeMacro));
     macro_registry.register(Arc::new(SkullCavernsMacro));
-    println!("{} Macro's Registered Successfully!", macro_registry.get_register_count());
+    macro_registry.register(Arc::new(GambleCoinsMacro));
 
     // Return the initialised macro registry
     macro_registry

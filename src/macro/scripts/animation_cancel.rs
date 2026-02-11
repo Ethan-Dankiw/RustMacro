@@ -2,6 +2,7 @@ use crate::common::utils::sleep;
 use crate::r#macro::traits::{GenericMacro, KeyboardRef, MacroAction, MouseRef};
 use anyhow::Result;
 use input_linux::Key;
+use crate::r#macro::scripts::utils::cancel_animation;
 
 pub struct AnimationCancelMacro;
 
@@ -11,7 +12,7 @@ impl GenericMacro for AnimationCancelMacro {
     }
 
     fn trigger_key(&self) -> Key {
-        Key::F5
+        Key::F13
     }
 
     fn action_type(&self) -> MacroAction {
@@ -35,22 +36,8 @@ impl GenericMacro for AnimationCancelMacro {
         // Sleep for a short while
         sleep(125);
 
-        // Press the DELETE + RIGHT SHIFT + R keys to animation cancel
-        if let Ok(keyboard) = keyboard_ref.lock() {
-            keyboard.key_down(Key::Delete)?;
-            keyboard.key_down(Key::RightShift)?;
-            keyboard.key_down(Key::R)?;
-        }
-
-        // Sleep for a short while
-        sleep(25);
-
-        // Release the pressed down DELETE + RIGHT SHIFT + R keys
-        if let Ok(keyboard) = keyboard_ref.lock() {
-            keyboard.key_release(Key::Delete)?;
-            keyboard.key_release(Key::RightShift)?;
-            keyboard.key_release(Key::R)?;
-        }
+        // Cancel the animation
+        cancel_animation(&keyboard_ref)?;
 
         // Indicate successful macro execution
         Ok(())

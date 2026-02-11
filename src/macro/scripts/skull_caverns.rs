@@ -11,7 +11,7 @@ impl GenericMacro for SkullCavernsMacro {
     }
 
     fn trigger_key(&self) -> Key {
-        Key::F6
+        Key::F23
     }
 
     fn action_type(&self) -> MacroAction {

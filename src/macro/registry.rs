@@ -14,12 +14,13 @@ impl MacroRegistry {
         }
     }
 
-    pub fn get_register_count(&self) -> usize {
-        self.registry.len()
-    }
-
     pub fn register(&mut self, task: Macro) {
+        // Clone the task pointer so that it can be printed
+        let logic = task.clone();
+
+        // Register the macro
         self.registry.insert(task.trigger_key(), task);
+        println!("[{:?}] {} macro registered", logic.trigger_key(), logic.macro_name())
     }
 
     pub fn get_macro_by_trigger(&self, key: Key) -> Option<Macro> {
